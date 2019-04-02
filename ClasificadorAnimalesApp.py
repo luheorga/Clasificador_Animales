@@ -1,4 +1,5 @@
 import os
+import tensorflow as tf
 from keras.models import load_model
 from flask import Flask, request, redirect, url_for
 from werkzeug.utils import secure_filename
@@ -25,6 +26,21 @@ def convert_to_array(img):
     image = img.resize((50, 50))
     return np.array(image)
 
+def predict_animal(file):
+    print("Prediciendo .................................")
+    ar=convert_to_array(file)
+    ar=ar/255
+    label=1
+    a=[]
+    a.append(ar)
+    a=np.array(a)
+    score=model.predict(a,verbose=1)    
+    label_index=np.argmax(score)    
+    acc=np.max(score) 
+    result = "El animal encontrado es un "+str(label_index)+" con precisión =    "+str(acc)    
+    print(result)
+    return result
+
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
@@ -37,12 +53,16 @@ def upload_file():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-
+            filePath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            file.save(filePath)
+            
+            with graph.as_default():
+                result = predict_animal(filePath)
             return """ 
             <!doctype html>
             <title>Imagen clasificada</title>
-            <h1>Imagen clasificada</h1> 
+            <h1>Imagen clasificada</h1>
+            <p>"""+ result + """ </p>
             """
     return """
     <!doctype html>
@@ -57,7 +77,9 @@ def upload_file():
 def load_keras_model():
     """Load in the pre-trained model"""
     global model
-    model = load_model('model/clasificador_animales.h5')    
+    model = load_model('model/clasificador_animales.h5')  
+    global graph
+    graph = tf.get_default_graph()  
 
 if __name__ == "__main__":    
     load_keras_model()
