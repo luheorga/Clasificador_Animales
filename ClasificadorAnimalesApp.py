@@ -1,11 +1,10 @@
 import os
-import keras
 from keras.models import load_model
 from flask import Flask, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import numpy as np
-from PIL import Image
 import cv2 
+from PIL import Image
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
@@ -15,7 +14,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS 
 
 def clasificar_animal(fotoUrl):
     pass
@@ -58,7 +57,7 @@ def upload_file():
 def load_keras_model():
     """Load in the pre-trained model"""
     global model
-    model = load_model('models/clasificador_animales.h5')    
+    model = load_model('model/clasificador_animales.h5')    
 
 if __name__ == "__main__":    
     load_keras_model()
