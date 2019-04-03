@@ -13,18 +13,26 @@ ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS 
-
-def clasificar_animal(fotoUrl):
-    pass
 
 def convert_to_array(img):
     im = cv2.imread(img)
     img = Image.fromarray(im, 'RGB')
     image = img.resize((50, 50))
     return np.array(image)
+
+def get_animal_name(label):
+    if label==0:
+        return "murcielago"
+    if label==1:
+        return "castor"
+    if label==2:
+        return "hipopotamo"
+    if label==3:
+        return "caballo"
+    if label==4:
+        return "ardilla"
 
 def predict_animal(file):
     print("Prediciendo .................................")
@@ -37,7 +45,7 @@ def predict_animal(file):
     score=model.predict(a,verbose=1)    
     label_index=np.argmax(score)    
     acc=np.max(score) 
-    result = "El animal encontrado es un "+str(label_index)+" con precisión =    "+str(acc)    
+    result = "El animal encontrado es un "+get_animal_name(label_index)+" con precisión =    "+str(acc)    
     print(result)
     return result
 
